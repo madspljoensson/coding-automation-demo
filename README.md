@@ -1,123 +1,269 @@
-# AI Demo - Automated Issue Processing
+# AI-Driven Coding Automation with GitHub Copilot Agent & Azure DevOps
 
-This repository contains GitHub Copilot automation tools for Solita Denmark.
+Automating Repeatable Engineering Tasks using GitHub Copilot Agent, Azure DevOps, Azure CLI/REST, and GitHub Actions
 
-## Features
+## ⭐ Overview
 
-### Automated Issue Processing from Teams Messages
+This project explores how GitHub Copilot Agent and GitHub Actions can be used to automate repetitive engineering tasks, triggered from Azure DevOps (ADO) work items and executed safely through pull requests (PRs) and Azure CLI/REST operations.
 
-When a new issue is created in this repository, a GitHub Actions workflow automatically processes the content using the GitHub Models API.
+The goal is to build a prototype agentic workflow capable of:
 
-**What it does:**
-- Converts rough input (JSON, XML, YAML, or plain text from MS Teams) into clean, human-readable markdown
-- Extracts a clear, descriptive title
-- Creates a well-formatted description
-- Identifies and lists action items
+- Understanding Azure DevOps work items
+- Generating and executing background tasks with GitHub Copilot Agent
+- Producing ready-to-review PRs within minutes to hours
+- Executing optional Azure CLI commands in a secure environment
+- Closing the loop by updating DevOps ticket status
 
-**How it works:**
-1. When an issue is created (e.g., from a Teams webhook), the workflow triggers
-2. The GitHub Models API processes the issue body using AI (GPT-4o model)
-3. The issue is automatically updated with:
-   - A clean, descriptive title
-   - Well-formatted markdown description
-   - Extracted action items (if any)
+This repository is part of a research project with DTU and Solita, studying how AI agentic workflows can automate routine tasks and reshape software development processes. The project is inspired by Solita's internal GenAI automation initiatives and production PoCs.
 
-**Example:**
+## 🚀 Motivation
 
-**Before** (raw Teams message JSON):
-```json
-[{"body":{"plainTextContent":"Allan wrote add mrs to BDK team"}}]
+Solita has demonstrated that AI-powered background agents can handle tasks such as:
+
+- Library upgrades (including fixing breaking API changes)
+- Automated user access workflows
+- Routine configuration updates
+- Low-level refactoring and hygiene tasks
+
+These agents produce production-quality PRs in 5–15 minutes, significantly reducing manual workload and cycle time.
+
+This project brings those capabilities into an integrated workflow using:
+
+- Azure DevOps as the ticketing and trigger layer
+- GitHub Copilot Coding Agent as the main autonomous agent
+- GitHub Actions as the execution and sandbox runtime
+- Azure CLI & REST for infrastructure automation
+
+This is part of a larger paradigm shift where developers "herd" multiple tickets simultaneously while AI performs background work.
+
+## 🏗 Architecture
+
+Below is the full workflow from Azure DevOps → GitHub → Copilot Agent → PR → Deployment → Ticket resolution.
+
+```mermaid
+flowchart TD
+
+    ADO[Azure DevOps Work Item] --> WH[ADO Service Hook Trigger]
+    WH --> GHA[GitHub Actions Workflow]
+
+    GHA --> AGENT["GitHub Copilot Coding Agent<br/>(Background Task)"]
+
+    subgraph "Agent Runtime (GitHub Actions Sandbox)"
+        AGENT --> ANALYZE[Analyze Repo & Ticket Context]
+        AGENT --> PLAN[Generate Plan & Modify Code]
+        AGENT --> AZCLI[(Optional: Run Azure CLI / REST)]
+        PLAN --> CREATEBR[Create Branch]
+        CREATEBR --> COMMIT[Commit Code Changes]
+        COMMIT --> PR[Open Pull Request]
+    end
+
+    PR --> REVIEW[Human Reviews & Approves]
+    REVIEW --> MERGE[Merge PR]
+
+    MERGE --> PIPE[CI/CD Pipeline Deploys via Azure CLI/REST]
+    PIPE --> UPDATEADO[Update Work Item Status in Azure DevOps]
 ```
 
-**After** (processed issue):
-- **Title:** Add MRS to BDK team
-- **Description:** Well-formatted markdown with context and details
-- **Action Items:** 
-  - Add MRS to the BDK team
-  - Verify team permissions
-  - Notify requester
+This architecture mirrors Solita's demonstrated workflows for Copilot Agent–driven automation.
 
-## Workflow Configuration
+## 🔧 Key Components
 
-The repository contains multiple workflow options:
+### 1. Azure DevOps Work Item Trigger
 
-### 1. Main Workflow (`on_issue_created.yml`)
-This workflow attempts to use the GitHub Copilot Models API:
-- Triggers automatically on issue creation (`issues.opened` event)
-- Uses the GitHub Copilot Models API endpoint: `/orgs/{org}/copilot/models/{model}/inference`
-- Requires `issues: write`, `contents: read`, and `models: read` permissions
-- **Note:** This requires GitHub Copilot access for the organization
+A service hook pushes work item events (created/updated) into GitHub Actions.
 
-**Known Issue:** If you see a 404 error, it means:
-- GitHub Copilot Models may not be enabled for your organization
-- The repository may not have access to Copilot Models  
-- Contact your GitHub organization administrator to enable GitHub Copilot
+### 2. GitHub Actions Orchestrator
 
-### 2. Simple Fallback Workflow (`process_issue_simple.yml`)
-A manual workflow that doesn't require Copilot:
-- Runs manually via workflow_dispatch
-- Extracts and formats Teams messages from JSON
-- Provides basic formatting without AI processing
-- Use this as a fallback if Copilot Models API is not available
+The Action:
 
-To use the simple workflow:
-1. Go to Actions → Process Issue - Simple Fallback
-2. Click "Run workflow"
-3. Enter the issue number
-4. The workflow will reformat the issue content
+- Parses the payload
+- Creates a background Copilot Agent task
+- Passes context (ticket text, repo info, instructions)
+- Provides a sandbox environment for optional Azure CLI commands
 
-### 3. Test Workflow (`test_models_api.yml`)  
-A diagnostic workflow to test Copilot Models API access:
-- Run manually to check if the API is accessible
-- Helps diagnose 404 errors
-- Useful for troubleshooting organizational access
+### 3. GitHub Copilot Coding Agent
 
-## Context
+The coding agent:
 
-This automation is designed for IT employees at Solita Denmark, working with:
-- Azure cloud services
-- Microsoft Teams
-- Azure DevOps
-- GitHub
+- Reads repo context
+- Understands the Azure DevOps ticket
+- Plans and performs code changes
+- Runs commands/tests in a secure action runtime
+- Creates a PR with explanations and commit messages
 
-Security and ISO-27001 compliance are maintained with proper access controls and least privilege principles.
+These capabilities match Solita's findings: the agent can autonomously update dependencies, fix breaking API changes, adjust code, and produce review-ready PRs.
 
-## Troubleshooting
+### 4. Optional: Azure CLI / REST Execution
 
-### HTTP 404 Error - API Not Found
+The agent may execute safe exploratory commands (e.g., listing resources) in its sandbox.
 
-If the workflow fails with a 404 error when calling the Copilot Models API, try these steps:
+Infrastructure-changing commands are normally executed only via CI/CD after PR approval (safety best-practice).
 
-1. **Check Organization Access**
-   - Verify that GitHub Copilot is enabled for your organization
-   - Contact your organization administrator if needed
+### 5. Human Review
 
-2. **Verify Permissions**
-   - Ensure the workflow has `models: read` permission (already configured)
-   - Check that your organization has access to GitHub Models
+A human developer reviews and approves the PR.
 
-3. **Use the Fallback Workflow**
-   - Use `process_issue_simple.yml` as a temporary workaround
-   - This workflow provides basic formatting without requiring Copilot access
+### 6. CI/CD Deployment
 
-4. **Test API Access**
-   - Run the `test_models_api.yml` workflow manually
-   - This will help diagnose if the API is accessible
+After merge:
 
-### Alternative Solutions
+- GitHub Actions applies IaC or scripts
+- Azure CLI / REST modifies actual cloud state
+- The Azure DevOps work item is updated automatically
 
-If GitHub Copilot Models API is not available for your organization:
-- Use the simple fallback workflow for basic Teams message formatting
-- Consider using GitHub Copilot Chat to manually process issues
-- Set up a custom webhook to an external AI service (requires additional configuration)
+## 📦 Example Use Cases
 
-# Using alternative agent 
-You can use any alternative or self hosted agent such as ollama.
+### Automated Library Updates
 
-``` sh
-ollama pull phi3:mini
-ollama serve
-python3 reasoning_agent.py
-# write a one-sentence summary of clean code principles
+- Detect outdated dependencies
+- Upgrade them
+- Fix breaking API changes
+- Produce PR with full explanation
+
+Already demonstrated in Solita PoCs.
+
+### Azure Resource Changes
+
+- Update Bicep/Terraform
+- Modify Azure DevOps pipeline YAML
+- Produce scripts to run az commands
+- Apply changes after PR approval
+
+### Routine IT/DevOps Tasks
+
+- Update budgets
+- Modify access rights (PR-first pattern)
+- Standardized configuration changes
+
+- Update documentation
+- Update knowledge base
+- Update FAQ
+- Update user guide
+- Update training materials
+- Update support articles
+- Update support documentation
+- Update support knowledge base
+- Update support FAQ
+- Update support user guide
+- Update support training materials
+
+## 🧭 Roadmap
+
+### Phase 1 — Foundations (MVP)
+
+- [x] Connect Azure DevOps service hook → GitHub Action
+- [ ] Prepare a GitHub Action that creates a Copilot Agent task
+- [ ] Provide ticket text + instructions to the agent
+- [ ] Agent produces branch + PR
+- [ ] Pipeline updates ADO ticket after merge
+
+- [ ] Ticket and Documentation RAG vector store for agent to query for context
+- [ ] Retrieval-Augmented Generation (RAG) for agent to query for context
+
+### Phase 2 — Azure Integration
+
+- [ ] A Completely Isolated Azure Sub-Tenant (for research and testing)
+
+- [ ] Add Azure CLI inside the action sandbox
+- [ ] Allow safe read-only commands by the agent
+- [ ] Implement PR-first Azure IaC changes
+- [ ] Add deployment job triggered by merge
+
+### Phase 3 — Advanced Agentic Behaviors
+
+- [ ] Multi-ticket parallel processing ("herding cattle")
+- [ ] Evaluate multiple LLM models (e.g. Sonnet 4.5 vs GPT-4.1)
+- [ ] Optional: Custom agent loop for comparison
+- [ ] Add RAG over internal documentation
+- [ ] Add real-time ticket triage and classification
+
+### Phase 4 — Research & Evaluation
+
+- [ ] Evaluate on historical Solita tickets
+- [ ] Compare human vs. agent speed and correctness
+- [ ] Assess reliability, failure modes, and trustworthiness
+- [ ] Prepare academic results
+
+---
+
+## 🔍 Access Checklist
+
+### GitHub
+
+- [ ] Repo write access
+- [ ] Copilot Business license
+- [ ] Copilot Agent features enabled
+- [ ] GitHub Actions permissions
+- [ ] Ability to open PRs programmatically
+
+### Azure DevOps
+
+- [ ] Access to work items
+- [ ] Permission to create service hooks
+- [ ] Read/write on Boards
+
+### Azure
+
+- [ ] Sandbox subscription
+- [ ] SP/OIDC identity for GH Actions
+- [ ] Reader/Contributor access
+
+### Security
+
+- [ ] Approval for agent automation
+- [ ] Approval to use internal tickets
+
+### Data
+ - [ ] Access to historical ADO tickets
+ - [ ] Documentation on existing workflows
+
+## 📁 Repository Structure (Suggested)
+
+```
+/.github/workflows/
+    agent-trigger.yml     # Creates Copilot agent task
+    deploy.yml            # Applies Azure changes on merge
+
+/scripts/
+    azure_helpers.sh      # CLI helpers for agent or pipeline
+    ado_webhook_parser.py # Parse Azure DevOps payloads
+
+/agents/
+    prompts/
+        ticket_prompt.md  # Instructions given to Copilot Agent
+    examples/
+        library_update/   # Example triggers and outputs
+
+/docs/
+    architecture.md
+    evaluation_plan.md
+    roadmap.md
 ```
 
+## 🔬 Research Questions (for DTU Thesis Integration)
+
+- How effective is GitHub Copilot Agent in automating real-world DevOps tasks?
+- Which tasks are most reliably automated?
+- How do models differ (Claude Sonnet 4.5 vs GPT-4.1) for task automation?
+- What are the safety implications of allowing agents to run CLI commands?
+- What is the optimal balance between autonomy and human-in-the-loop validation?
+
+## 🛡 Safety & Constraints
+
+- All destructive Azure actions MUST be gated behind PR review
+- Agent CLI usage allowed only in sandbox
+- Follow Solita's internal guidelines for enabling Copilot Agent CLI org-wide
+- Monitor agent output for hallucinations or incorrect assumptions
+
+## 🤝 Contributors
+
+**Solita Contacts (from slides)**
+
+- Mads Jønsson - Main Author
+
+- Michael Sundgaard - Initial Demo
+- Solita Finland - AI Coding Automation Slides
+
+## 📄 License
+
+MIT (or your preferred license)
