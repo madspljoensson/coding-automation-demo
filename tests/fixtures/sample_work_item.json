@@ -1,0 +1,38 @@
+{
+    "id": 12345,
+    "rev": 2,
+    "fields": {
+        "System.AreaPath": "MyProject\\Backend",
+        "System.TeamProject": "MyProject",
+        "System.IterationType": "Sprint 24",
+        "System.WorkItemType": "Task",
+        "System.State": "Active",
+        "System.Reason": "New",
+        "System.AssignedTo": {
+            "displayName": "Copilot Agent",
+            "uniqueName": "agent@example.com",
+            "id": "00000000-0000-0000-0000-000000000000"
+        },
+        "System.CreatedDate": "2024-01-15T10:00:00Z",
+        "System.CreatedBy": {
+            "displayName": "Developer User",
+            "uniqueName": "developer@example.com"
+        },
+        "System.ChangedDate": "2024-01-15T14:30:00Z",
+        "System.Title": "Upgrade React from v17 to v18",
+        "System.Description": "<div>Our application is currently using React 17. We need to upgrade to React 18 to take advantage of new features like automatic batching and concurrent rendering.</div><div><br></div><div><strong>Requirements:</strong></div><ul><li>Update React and ReactDOM to version 18</li><li>Update the root rendering API to use createRoot</li><li>Ensure all existing tests pass</li><li>Update any deprecated APIs</li></ul><div><br></div><div><strong>Acceptance Criteria:</strong></div><ul><li>package.json shows React 18.x</li><li>Application builds successfully</li><li>All tests pass</li><li>No console warnings about deprecated APIs</li></ul>",
+        "System.Tags": "library-upgrade; react; frontend",
+        "Microsoft.VSTS.Common.Priority": 2,
+        "Microsoft.VSTS.Common.Severity": "3 - Medium"
+    },
+    "relations": [
+        {
+            "rel": "System.LinkTypes.Hierarchy-Reverse",
+            "url": "https://dev.azure.com/org/project/_apis/wit/workItems/12340",
+            "attributes": {
+                "name": "Parent"
+            }
+        }
+    ],
+    "url": "https://dev.azure.com/org/project/_apis/wit/workItems/12345"
+}
