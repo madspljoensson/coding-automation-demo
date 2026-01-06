@@ -1,0 +1,43 @@
+name: Agent Task
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  assign-agent:
+    if: github.event.label.name == 'agent-task'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Assign Copilot to issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Assigning Copilot agent to issue #${{ github.event.issue.number }}..."
+          
+          # Add a comment to acknowledge the task
+          gh issue comment ${{ github.event.issue.number }} \
+            --body "🤖 **Agent Task Started**
+          
+          I'm analyzing this request and will create a script for review.
+          
+          Once ready, I'll open a Pull Request for your approval."
+          
+          # Assign Copilot (requires Copilot to be enabled for the repo)
+          gh issue edit ${{ github.event.issue.number }} \
+            --add-assignee "@copilot" || echo "Note: Could not assign Copilot directly"
+
+      - name: Log task details
+        run: |
+          echo "Issue #${{ github.event.issue.number }}"
+          echo "Title: ${{ github.event.issue.title }}"
+          echo "Label: ${{ github.event.label.name }}"
+

@@ -1,0 +1,62 @@
+name: Execute Approved Scripts
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/pending/**'
+
+permissions:
+  contents: write
+
+jobs:
+  execute-scripts:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+        continue-on-error: true
+
+      - name: Find and execute pending scripts
+        run: |
+          echo "Looking for scripts in scripts/pending/..."
+          
+          for script in scripts/pending/*.ps1; do
+            if [ -f "$script" ]; then
+              echo "========================================="
+              echo "Executing: $script"
+              echo "========================================="
+              
+              # Execute the script
+              pwsh "$script" || echo "Script failed: $script"
+              
+              # Move to executed folder
+              filename=$(basename "$script")
+              mv "$script" "scripts/executed/$filename"
+              
+              echo "Moved to scripts/executed/$filename"
+            fi
+          done
+
+      - name: Commit execution results
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Check if there are changes to commit
+          if git diff --quiet scripts/; then
+            echo "No changes to commit"
+          else
+            git add scripts/
+            git commit -m "chore: move executed scripts to executed folder"
+            git push
+          fi
+
