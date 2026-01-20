@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-01-19 - Agent Folder Separation
+
+### Changed
+- Moved agent-operated folders under `_agent/` (now `_agent/scripts/` and `_agent/agent-docs/`)
+- Updated docs and workflows to use the new paths
+
 ## 2026-01-06 - Repository Restructure
 
 ### Added

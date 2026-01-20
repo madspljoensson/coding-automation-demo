@@ -10,12 +10,12 @@ coding-automation-demo/
 │       ├── agent-task.yml        # Triggers agent on labeled issues
 │       └── execute-approved.yml  # Runs scripts after PR merge
 │
-├── scripts/
-│   ├── pending/                  # New scripts awaiting approval
-│   ├── executed/                 # Scripts that have been run
-│   └── templates/                # Reusable script patterns
-│
-├── agent-docs/                   # Agent-created documentation
+├── _agent/                       # AI-managed folder (do not edit manually)
+│   ├── scripts/
+│   │   ├── pending/              # New scripts awaiting approval
+│   │   ├── executed/             # Scripts that have been run
+│   │   └── templates/            # Reusable script patterns
+│   └── agent-docs/               # Agent-created documentation
 │
 ├── docs/
 │   ├── architecture/
@@ -24,7 +24,7 @@ coding-automation-demo/
 │   ├── setup.md                  # Setup instructions
 │   └── research.md               # Research goals
 │
-├── _archive/                     # Deprecated files (reference only)
+├── __archive/                     # Deprecated files (reference only)
 │
 ├── README.md                     # Project overview
 ├── CHANGELOG.md                  # Version history
@@ -37,14 +37,14 @@ coding-automation-demo/
 
 GitHub-specific configuration. The `copilot-instructions.md` file contains the universal prompt that guides the agent for all tasks.
 
-### `scripts/`
+### `_agent/scripts/`
 
 Three-stage script lifecycle:
 1. **templates/** - Reusable patterns the agent can reference
 2. **pending/** - Agent-created scripts awaiting human approval
 3. **executed/** - Scripts that have been approved and run
 
-### `agent-docs/`
+### `_agent/agent-docs/`
 
 Knowledge base created by the agent itself. When the agent learns something useful (e.g., "this group requires special handling"), it documents it here for future reference.
 

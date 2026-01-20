@@ -23,13 +23,13 @@ Read the issue carefully. Common requests include:
 ### Step 2: Gather Information
 
 Check these sources:
-- `scripts/templates/` - Reusable script patterns
-- `agent-docs/` - Previous learnings from similar tasks
+- `_agent/scripts/templates/` - Reusable script patterns
+- `_agent/agent-docs/` - Previous learnings from similar tasks
 - Issue comments for clarifications
 
 ### Step 3: Create the Script
 
-Create a PowerShell script in `scripts/pending/` with:
+Create a PowerShell script in `_agent/scripts/pending/` with:
 - Clear filename: `issue-{number}-{brief-description}.ps1`
 - Header comment explaining what it does
 - Parameterized values (no hardcoded secrets)
@@ -54,8 +54,8 @@ param(
 
 ### Step 4: Document Learnings
 
-If you discover something useful for future tasks, add a note to `agent-docs/`:
-- Create a file like `agent-docs/azure-ad-groups.md`
+If you discover something useful for future tasks, add a note to `_agent/agent-docs/`:
+- Create a file like `_agent/agent-docs/azure-ad-groups.md`
 - Keep it brief and practical
 - Focus on gotchas, requirements, or patterns
 

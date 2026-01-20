@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'scripts/pending/**'
+      - '_agent/scripts/pending/**'
 
 permissions:
   contents: write
@@ -27,9 +27,9 @@ jobs:
 
       - name: Find and execute pending scripts
         run: |
-          echo "Looking for scripts in scripts/pending/..."
+          echo "Looking for scripts in _agent/scripts/pending/..."
           
-          for script in scripts/pending/*.ps1; do
+          for script in _agent/scripts/pending/*.ps1; do
             if [ -f "$script" ]; then
               echo "========================================="
               echo "Executing: $script"
@@ -40,9 +40,9 @@ jobs:
               
               # Move to executed folder
               filename=$(basename "$script")
-              mv "$script" "scripts/executed/$filename"
+              mv "$script" "_agent/scripts/executed/$filename"
               
-              echo "Moved to scripts/executed/$filename"
+              echo "Moved to _agent/scripts/executed/$filename"
             fi
           done
 
@@ -52,10 +52,10 @@ jobs:
           git config user.email "actions@github.com"
           
           # Check if there are changes to commit
-          if git diff --quiet scripts/; then
+          if git diff --quiet _agent/scripts/; then
             echo "No changes to commit"
           else
-            git add scripts/
+            git add _agent/scripts/
             git commit -m "chore: move executed scripts to executed folder"
             git push
           fi

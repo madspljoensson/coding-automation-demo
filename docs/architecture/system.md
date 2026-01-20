@@ -43,10 +43,14 @@ flowchart TD
 | GitHub Issue | Task request from user |
 | `agent-task.yml` | Workflow that assigns Copilot to the issue |
 | Copilot Agent | Reads context, generates scripts, opens PR |
-| `scripts/pending/` | Where agent places new scripts |
+| `_agent/scripts/pending/` | Where agent places new scripts |
 | Human Review | Approve/reject the PR |
 | `execute-approved.yml` | Runs scripts after merge |
-| `agent-docs/` | Agent's self-created knowledge base |
+| `_agent/agent-docs/` | Agent's self-created knowledge base |
+
+## Resources
+
+[Azure - Test group](https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupDetailsMenuBlade/~/AssignedApplications/groupId/d456a00e-55b4-4559-a6d9-07d029fe2988/menuId/)
 
 ## Security Model
 

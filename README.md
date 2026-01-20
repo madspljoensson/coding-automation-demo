@@ -25,11 +25,12 @@ flowchart LR
 ├── .github/
 │   ├── copilot-instructions.md   # Agent instructions
 │   └── workflows/                # Automation workflows
-├── scripts/
-│   ├── pending/                  # Scripts awaiting approval
-│   ├── executed/                 # Completed scripts
-│   └── templates/                # Reusable script templates
-├── agent-docs/                   # Agent-created documentation
+├── _agent/                       # AI-managed folder (do not edit manually)
+│   ├── scripts/
+│   │   ├── pending/              # Scripts awaiting approval
+│   │   ├── executed/             # Completed scripts
+│   │   └── templates/            # Reusable script templates
+│   └── agent-docs/               # Agent-created documentation
 └── docs/                         # Project documentation
 ```
 
